@@ -1,13 +1,11 @@
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { CompositeScreenProps } from "@react-navigation/native";
-
 import { RootStackScreenProps } from "./RootNavigator";
-
 import HomeScreen from "../Screens/HomeScreen";
 import CartScreen from "../Screens/CartScreen";
 import PaymentScreen from "../Screens/PaymentScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
-
+import ProductDetails from "../Screens/ProductDetails";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 
 export type TabsStackParams = {
@@ -15,11 +13,17 @@ export type TabsStackParams = {
     Cart: undefined;
     Payment: undefined;
     Profile: undefined;
+    ProductDetails: {
+        productId: string;
+    };
 };
 
 const TabsStack = createBottomTabNavigator<TabsStackParams>();
 
-export type TabsStackScreenProps<T extends keyof TabsStackParams> = CompositeScreenProps<BottomTabScreenProps<TabsStackParams, T>, RootStackScreenProps<"TabsStack">>;
+export type TabsStackScreenProps<T extends keyof TabsStackParams> = CompositeScreenProps<
+    BottomTabScreenProps<TabsStackParams, T>,
+    RootStackScreenProps<"TabsStack">
+>;
 
 const TabsNavigator = () => {
     return (
@@ -78,6 +82,14 @@ const TabsNavigator = () => {
                 }}
             />
 
+            <TabsStack.Screen
+                name="ProductDetails"
+                component={ProductDetails}
+                options={{
+                    headerShown: false,
+                    tabBarButton: () => null, // Hides this tab from the tab bar
+                }}
+            />
         </TabsStack.Navigator>
     );
 };

@@ -1,14 +1,10 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import React from 'react';
-import { CategoryParams, CategoryStyleProps, CategoryCardProps } from '../../TypesCheck/HomeProp';
-
-interface Props {
-    item: CategoryParams;
-    catProps: CategoryCardProps;
-    catStyleProps: CategoryStyleProps;
-}
+import { StyleSheet, TouchableOpacity, Image, Text, View } from 'react-native';
+import { getImageUrl } from '../../middleware/HomeMiddleware';
+import { Props } from '../../TypesCheck/HomeProp';
 
 export const CategoryCard = ({ item, catProps, catStyleProps }: Props) => {
+    const imageUrl = getImageUrl(item.images[0]);
     const isActive = item._id === catProps.activeCat;
 
     return (
@@ -22,9 +18,15 @@ export const CategoryCard = ({ item, catProps, catStyleProps }: Props) => {
             onPress={catProps.onPress}
         >
             <Image
-                source={{ uri: item.images[0] }}
+                source={{
+                    uri: getImageUrl(item.images[0]) || undefined
+                }}
                 style={styles.image}
                 resizeMode={catStyleProps.resizeMode}
+                defaultSource={require('../../../assets/cat404.jpg')}
+                onError={(e) => {
+                    console.log('Category image load error:', e.nativeEvent.error);
+                }}
             />
             <Text style={[styles.text, {
                 color: isActive ? '#FFFFFF' : '#000000'
@@ -37,10 +39,10 @@ export const CategoryCard = ({ item, catProps, catStyleProps }: Props) => {
 
 const styles = StyleSheet.create({
     container: {
-        margin: 5,
         padding: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginHorizontal: 5,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -48,14 +50,13 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
     },
     image: {
-        width: '80%',
-        height: '60%',
-        borderRadius: 10,
+        width: '100%',
+        height: '100%',
+        borderRadius: 35,
     },
     text: {
-        marginTop: 8,
+        marginTop: 5,
         fontSize: 12,
-        fontWeight: '600',
-        textAlign: 'center',
+        fontWeight: '500',
     }
 });

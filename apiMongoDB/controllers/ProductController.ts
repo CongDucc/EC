@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express'
 import { PRODUCTS } from '../models/ProductModel'
 import { ProductParams } from '../dto/product'; // Changed from Product to product
 
-const path = 'http://localhost:8888/assets/'
+const path = 'http://localhost:9000/assets/'
 export const createProduct = async (req: Request, res: Response) => {
     const { name, price, oldPrice, description, quantity, inStock, isFeatured,
         category } = <ProductParams>req.body;
@@ -53,3 +53,37 @@ export const getAllProducts = async (req: Request, res: Response) => {
         res.status(500).json(`Products not found ${error} :-( `)
     }
 }
+
+export const deleteProduct = async (req: Request, res: Response) => {
+    try {
+        const product = await PRODUCTS.findByIdAndDelete(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+        console.error('Error in deleteProduct:', error);
+        res.status(500).json({ error: `Failed to delete product: ${error.message}` });
+    }
+};
+export const getProductsByPrice = async (req: Request, res: Response) => {
+    try {
+        const maxPrice = Number(req.query.maxPrice) || 1000;
+        const products = await PRODUCTS.find({
+            price: { $lte: maxPrice }
+        });
+
+        if (!products || products.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(products);
+    } catch (error: any) {
+        console.error('Error in getProductsByPrice:', error);
+        res.status(500).json({
+            error: `Failed to fetch products by price: ${error.message}`
+        });
+    }
+};

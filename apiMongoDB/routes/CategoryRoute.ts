@@ -39,8 +39,12 @@ router.get('/:id', async (req: Request, res: Response) => {
     await getCategory(req, res);
 });
 
-router.get('/', async (req: Request, res: Response) => {
-    await getAllCategories(req, res);
+router.get('/', async (req, res) => {
+    try {
+        await getAllCategories(req, res);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
 });
 
 router.put('/updateCategory/:id', (req: Request, res: Response, next: NextFunction) => {

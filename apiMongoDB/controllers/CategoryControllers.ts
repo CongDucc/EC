@@ -4,6 +4,8 @@ import { CategoryObj, UpdateCategory } from '../dto/Categories';
 import fs from 'fs';
 import path from 'path';
 
+
+
 export const createCategory = async (req: Request, res: Response) => {
     const { name } = <CategoryObj>req.body;
     const file = req.file;
@@ -31,6 +33,7 @@ export const createCategory = async (req: Request, res: Response) => {
     }
 };
 
+
 export const getCategory = async (req: Request, res: Response) => {
     try {
         const category = await CATEGORIES.findById(req.params.id);
@@ -43,12 +46,14 @@ export const getCategory = async (req: Request, res: Response) => {
     }
 };
 
-export const getAllCategories = async (_req: Request, res: Response) => {
+export const getAllCategories = async (req: Request, res: Response) => {
     try {
         const categories = await CATEGORIES.find({});
+        console.log('Found categories:', categories);
         res.status(200).json(categories);
-    } catch (error) {
-        res.status(500).json({ error: `Error fetching categories: ${error}` });
+    } catch (error: any) {
+        console.error('Error in getAllCategories:', error);
+        res.status(500).json({ error: `Failed to fetch categories: ${error.message}` });
     }
 };
 
@@ -122,3 +127,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
         res.status(500).json({ error: `Error deleting category: ${error}` });
     }
 };
+
+
+

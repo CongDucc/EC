@@ -9,7 +9,7 @@ export interface ProductListParams {
     updatedAt: Date;
 }
 
-export interface CategoryParams {
+export interface CategoryItem {
     _id: string;
     name: string;
     images: string[];
@@ -23,6 +23,18 @@ export interface CategoryStyleProps {
 }
 
 export interface CategoryCardProps {
-    activeCat: string;
+    activeCat?: string;
     onPress: () => void;
+}
+
+export interface Props {
+    item: CategoryItem;
+    catStyleProps: CategoryStyleProps;
+    catProps: CategoryCardProps;
+}
+
+export interface CategoryParams {
+    _id: string;
+    name: string;
+    images: string[];
 }
