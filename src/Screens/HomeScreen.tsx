@@ -166,7 +166,6 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
           </ScrollView>
         </View>
 
-        {/* Products Section */}
         <View style={styles.productSection}>
           <Text style={styles.sectionTitle}>
             {activeCat ? 'Selected Category' : activePrice ? `Products under $${activePrice}` : 'All Products'}
@@ -180,7 +179,14 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
                   <TouchableOpacity
                     key={index}
                     style={styles.productCard}
-                    onPress={() => navigation.navigate("ProductDetails", { productId: item._id })}
+                    onPress={() => navigation.navigate("productDetails", {
+                      _id: item._id,
+                      name: item.name,
+                      images: [item.images[0]],
+                      price: item.price,
+                      description: item.description,
+                      quantity: 1 // Default quantity for new items
+                    })}
                   >
                     <Image
                       source={{
