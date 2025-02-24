@@ -6,7 +6,8 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  Alert
+  Alert,
+  Dimensions
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
@@ -25,6 +26,14 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
   const [isProductLoading, setIsProductLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const sliderImages = [
+    require('../../assets/product1.jpg'),
+    require('../../assets/product2.jpg'),
+    require('../../assets/product3.jpg'),
+  ];
+
+  const { width } = Dimensions.get('window');
 
   const gotoCartScreen = () => {
     navigation.navigate("Cart");
@@ -55,7 +64,6 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
         } else if (activePrice !== null) {
           await fetchProductsByPrice({ setGetProductsByCatID, maxPrice: activePrice });
         } else {
-          // Load all products when no filter is active
           await fetchProductsByCatID({ setGetProductsByCatID, catID: '' });
         }
         setError(null);
@@ -71,7 +79,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
 
   const handlePriceFilter = (price: number | null) => {
     setActivePrice(price);
-    setActiveCat(""); // Reset category filter when price filter is applied
+    setActiveCat("");
   };
 
   return (
@@ -79,6 +87,12 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
       <HeadersComponent gotoCartScreen={gotoCartScreen} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Image Slider Section */}
+        <View style={styles.sliderSection}>
+          <ImageSlider images={sliderImages} />
+        </View>
+
+        {/* Categories Section */}
         <View style={styles.categorySection}>
           <Text style={styles.sectionTitle}>Categories</Text>
           {isCategoryLoading ? (
@@ -118,6 +132,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
           )}
         </View>
 
+        {/* Price Filters Section */}
         <View style={styles.filterSection}>
           <Text style={styles.sectionTitle}>Price Filters</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -151,6 +166,7 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
           </ScrollView>
         </View>
 
+        {/* Products Section */}
         <View style={styles.productSection}>
           <Text style={styles.sectionTitle}>
             {activeCat ? 'Selected Category' : activePrice ? `Products under $${activePrice}` : 'All Products'}
@@ -197,6 +213,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
     paddingTop: Platform.OS === "android" ? 40 : 0,
+  },
+  sliderSection: {
+    height: 200,
+    width: '100%',
+    backgroundColor: '#fff',
+    marginBottom: 10,
   },
   categorySection: {
     padding: 15,

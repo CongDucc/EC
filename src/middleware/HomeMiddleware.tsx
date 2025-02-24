@@ -24,20 +24,20 @@ export const getImageUrl = (imagePath: string) => {
     // If it's already a full URL, replace localhost with IP for Android
     if (imagePath.startsWith('http')) {
         if (Platform.OS === 'android') {
-            return imagePath.replace('localhost', '10.106.23.84');
+            return imagePath.replace('localhost', '10.106.20.69');
         }
         return imagePath;
     }
 
     // If it's just a filename, construct the full URL
     const baseUrl = Platform.OS === 'android'
-        ? 'http://10.106.23.84:9000'
+        ? 'http://10.106.20.69:9000'
         : 'http://localhost:9000';
     return `${baseUrl}/assets/${imagePath}`;
 };
 
 const BASE_URL = Platform.OS === 'android'
-    ? 'http://10.106.23.84:9000'
+    ? 'http://10.106.20.69:9000'
     : 'http://localhost:9000';
 
 const api = axios.create({
