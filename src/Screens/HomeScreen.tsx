@@ -17,6 +17,9 @@ import ImageSlider from "../Components/HomeScreenComponents/ImageSlider";
 import { ProductListParams, CategoryParams } from "../TypesCheck/HomeProp";
 import { CategoryCard } from "../Components/HomeScreenComponents/CategoryCard";
 import { fetchCategories, fetchProductsByCatID, fetchProductsByPrice, getImageUrl } from '../middleware/HomeMiddleware';
+import { CartState } from "../TypesCheck/productCartTypes";
+import { useSelector } from "react-redux";
+import DisplayMessage from "../Components/ProductDetails/DisplayMessage";
 
 const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const [getCategory, setGetCategory] = useState<CategoryParams[]>([]);
@@ -26,6 +29,9 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
   const [isProductLoading, setIsProductLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cart = useSelector((state: CartState) => state.cart.cart);
+  const [message, setMessage] = React.useState("");
+  const [displayMessage, setDisplayMessage] = React.useState<boolean>(false);
 
   const sliderImages = [
     require('../../assets/product1.jpg'),
@@ -36,7 +42,25 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   const { width } = Dimensions.get('window');
 
   const gotoCartScreen = () => {
-    navigation.navigate("Cart");
+    if (cart.length === 0) {
+      setMessage("Cart is empty. Please add products to cart.");
+      setDisplayMessage(true);
+      setTimeout(() => {
+        setDisplayMessage(false);
+      }, 3000);
+    } else {
+      navigation.navigate("TabsStack", { screen: "Cart" });
+    }
+  };
+
+  const goToPreviousScreen = () => {
+    if (navigation.canGoBack()) {
+      console.log("Chuyển về trang trước.");
+      navigation.goBack();
+    } else {
+      console.log("Không thể quay lại, chuyển về trang Onboarding.");
+      navigation.navigate("OnboardingScreen"); // Điều hướng fallback nếu không quay lại được
+    }
   };
 
   useEffect(() => {
@@ -83,8 +107,9 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <HeadersComponent gotoCartScreen={gotoCartScreen} />
+    <SafeAreaView style={{ paddingTop: Platform.OS === "android" ? 1 : 0, flex: 1, backgroundColor: "white" }}>
+      {displayMessage && <DisplayMessage message={message} visible={() => setDisplayMessage(!displayMessage)} />}
+      <HeadersComponent gotoCartScreen={gotoCartScreen} cartLength={cart.length} goToPrevios={goToPreviousScreen} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Image Slider Section */}
@@ -179,13 +204,15 @@ const HomeScreen = ({ navigation }: TabsStackScreenProps<"Home">) => {
                   <TouchableOpacity
                     key={index}
                     style={styles.productCard}
-                    onPress={() => navigation.navigate("productDetails", {
+                    onPress={() => navigation.navigate("ProductDetails", {
                       _id: item._id,
                       name: item.name,
-                      images: [item.images[0]],
                       price: item.price,
+                      oldPrice: item.oldPrice,
                       description: item.description,
-                      quantity: 1 // Default quantity for new items
+                      images: item.images,
+                      inStock: true,
+                      quantity: 1
                     })}
                   >
                     <Image

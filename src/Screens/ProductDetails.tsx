@@ -7,37 +7,90 @@ import {
     Dimensions,
     SafeAreaView,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity,
+    Pressable
 } from 'react-native'
 import React, { useState } from 'react'
-import { RootStackScreenProps } from '../Navigation/RootNavigator'
-import HeaderComponent from '../Components/HeaderComponents/HeaderComponent'
+import { TabsStackScreenProps } from '../Navigation/TabsNavigation'
+import HeaderComponent, { HeadersComponent } from '../Components/HeaderComponents/HeaderComponent'
 import { AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { getImageUrl } from '../middleware/HomeMiddleware'
+import { addToCart } from '../redux/CartReducer'
+import { useDispatch, useSelector } from 'react-redux'
+import { CartState, ProductListParams } from '../TypesCheck/productCartTypes'
+import DisplayMessage from '../Components/ProductDetails/DisplayMessage'
 
 const { width } = Dimensions.get('window')
 
-const ProductDetails = ({ navigation, route }: RootStackScreenProps<'productDetails'>) => {
+const ProductDetails = ({ navigation, route }: TabsStackScreenProps<"ProductDetails">) => {
     const { _id, name, price, oldPrice, description, images } = route.params;
     const [quantity, setQuantity] = useState(1);
     const [inStock] = useState(true);
     const [isFavorite, setIsFavorite] = useState(false);
+    const cart = useSelector((state: CartState) => state.cart.cart);
+    const dispatch = useDispatch();
+    const [addedToCart, setAddedToCart] = React.useState(false);
+    const [message, setMessage] = React.useState("");
+    const [displayMessage, setDisplayMessage] = React.useState<boolean>(false);
+    const productItemObj: ProductListParams = route.params as ProductListParams;
 
     const toggleFavorite = () => {
         setIsFavorite(!isFavorite);
     };
 
+    const addItemToCart = (ProductItemObj: ProductListParams) => {
+        if (ProductItemObj.quantity <= 0) {
+            setMessage("Product is out of stock.");
+            setDisplayMessage(true);
+            setTimeout(() => {
+                setDisplayMessage(false);
+            }, 3000);
+        } else {
+            const findItem = cart.find((product) => product._id === ProductItemObj._id);
+            if (findItem) {
+                setMessage("Product is already in cart.");
+                setDisplayMessage(true);
+                setTimeout(() => {
+                    setDisplayMessage(false);
+                }, 3000);
+            } else {
+                setAddedToCart(!addedToCart);
+                dispatch(addToCart(ProductItemObj));
+                setMessage("Product added to cart successfully.");
+                setDisplayMessage(true);
+                setTimeout(() => {
+                    setDisplayMessage(false);
+                }, 3000);
+            }
+        }
+    };
+
+
+
+    const gotoCartScreen = () => {
+        if (cart.length === 0) {
+            setMessage("Cart is empty. Please add products to cart.");
+            setDisplayMessage(true);
+            setTimeout(() => {
+                setDisplayMessage(false);
+            }, 3000);
+        } else {
+            navigation.navigate("TabsStack", {
+                screen: "Cart",
+                params: {} // Add empty params object
+            });
+        }
+    };
+
     const goToPreviousScreen = () => {
         if (navigation.canGoBack()) {
-            navigation.goBack()
+            console.log("Chuyển về trang trước.");
+            navigation.goBack();
         } else {
-            navigation.navigate("OnboardingScreen")
+            console.log("Không thể quay lại, chuyển về trang Onboarding.");
+            navigation.navigate("OnboardingScreen");  // Điều hướng fallback nếu không quay lại được
         }
-    }
-
-    const goToCartScreen = () => {
-        navigation.navigate('Cart')
-    }
+    };
 
     const handleQuantityChange = (type: 'increase' | 'decrease') => {
         if (type === 'increase' && quantity < 10) {
@@ -47,9 +100,13 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<'productDeta
         }
     }
 
+
+
+
     return (
-        <SafeAreaView style={styles.container}>
-            <HeaderComponent gotoCartScreen={goToCartScreen} goToPrevios={goToPreviousScreen} />
+        <SafeAreaView style={{ paddingTop: Platform.OS === 'android' ? 20 : 0, flex: 1, backgroundColor: "white" }}>
+            {displayMessage && <DisplayMessage message={message} visible={() => setDisplayMessage(!displayMessage)} />}
+            <HeadersComponent gotoCartScreen={gotoCartScreen} cartLength={cart.length} goToPrevios={goToPreviousScreen} />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Product Image */}
@@ -152,12 +209,31 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<'productDeta
                 <TouchableOpacity
                     style={[styles.addToCartButton, !inStock && styles.disabledButton]}
                     disabled={!inStock}
+                    onPress={() => addItemToCart({
+                        _id,
+                        name,
+                        price,
+                        oldPrice,
+                        description,
+                        images: [images[0] || ''],
+                        quantity,
+                        inStock
+                    })}
                 >
                     <Text style={styles.addToCartText}>
                         {inStock ? 'Add to Cart' : 'Out of Stock'}
                     </Text>
                 </TouchableOpacity>
             </View>
+            {displayMessage && (
+                <View style={styles.notificationContainer}>
+                    <Text style={styles.notificationText}>{message}</Text>
+                </View>
+            )}
+
+
+
+
         </SafeAreaView>
     );
 }
@@ -313,6 +389,22 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         lineHeight: 20,
+    },
+
+    notificationContainer: {
+        position: 'absolute',
+        top: Platform.OS === "android" ? 80 : 60,
+        left: 20,
+        right: 20,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 10,
+        borderRadius: 8,
+        zIndex: 999,
+        alignItems: 'center',
+    },
+    notificationText: {
+        color: '#fff',
+        fontSize: 16,
     },
 });
 

@@ -10,14 +10,28 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 
 export type TabsStackParams = {
     Home: undefined;
-    Cart: undefined;
     Payment: undefined;
     Profile: undefined;
+    Cart: {
+        _id?: string;
+        images?: [string];
+        name?: string;
+        price?: number;
+        color?: string;
+        size?: string;
+        quantity?: number;
+    } | undefined;  // Make the entire params optional
     ProductDetails: {
-        productId: string;
+        _id: string;
+        name: string;
+        price: number;
+        oldPrice?: number;
+        description?: string;
+        images: string[];
+        inStock?: boolean;
+        quantity?: number;
     };
 };
-
 const TabsStack = createBottomTabNavigator<TabsStackParams>();
 
 export type TabsStackScreenProps<T extends keyof TabsStackParams> = CompositeScreenProps<

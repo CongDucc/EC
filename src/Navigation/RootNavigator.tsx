@@ -7,11 +7,10 @@ import ProductDetails from "../Screens/ProductDetails"
 
 
 export type RootStackParams = {
-    OnboardingScreen: undefined
-    TabsStack: NavigatorScreenParams<TabsStackParams>
-    Deals: undefined
-    Cart: undefined
-    Profile: undefined
+    OnboardingScreen: undefined;
+    TabsStack: NavigatorScreenParams<TabsStackParams>;
+    Deals: undefined;
+    Profile: undefined;
 
     productDetails: {
         _id: string;
@@ -25,6 +24,17 @@ export type RootStackParams = {
         description?: string;
         quantity: number;
     }
+
+    Cart: {
+        _id: string;
+        images: [string];
+        name: string;
+        price: number;
+        color?: string;
+        size?: string;
+        quantity: number;
+    }
+
 }
 
 const RootStack = createNativeStackNavigator<RootStackParams>();
@@ -43,11 +53,7 @@ const RootNavigator = () => {
                 component={TabsNavigator}
                 options={{ headerShown: false }}
             />
-            <RootStack.Screen
-                name="productDetails"
-                component={ProductDetails}
-                options={{ headerShown: false }}
-            />
+
         </RootStack.Navigator>
     )
 }

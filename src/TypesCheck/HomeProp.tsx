@@ -3,11 +3,16 @@ export interface ProductListParams {
     name: string;
     description: string;
     price: number;
+    oldPrice?: number;
+    inStock: boolean;
     images: string[];
     category: string;
     createdAt: Date;
     updatedAt: Date;
 }
+
+
+
 
 export interface CategoryItem {
     _id: string;
