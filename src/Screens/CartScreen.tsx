@@ -5,9 +5,10 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  StyleSheet
+  StyleSheet,
+  Pressable
 } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { TabsStackScreenProps } from '../Navigation/TabsNavigation'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import HeadersComponent from '../Components/HeaderComponents/HeaderComponent'
@@ -18,12 +19,25 @@ import { getImageUrl } from '../middleware/HomeMiddleware'
 import { AntDesign, Feather } from '@expo/vector-icons'
 import { removeFromCart } from '../redux/CartReducer'
 import { increaseQuantity, decreaseQuantity } from '../redux/CartReducer';
-
+import { UserType } from '../Components/LoginRegisterComponent/UserContext'
 const CartScreen = ({ navigation, route }: TabsStackScreenProps<"Cart">) => {
   const cart = useSelector((state: CartState) => state.cart.cart);
-  const [message, setMessage] = React.useState("");
   const [displayMessage, setDisplayMessage] = React.useState<boolean>(false);
+  const [message, setMessage] = React.useState("");
   const dispatch = useDispatch();
+  const { getUserId, setGetUserId } = useContext(UserType);
+
+
+  const proceed = () => {
+    if (getUserId === "") {
+      navigation.navigate("UserLogin", { screenTitle: "User Authentication" });
+    } else {
+      if (cart.length === 0) {
+        navigation.navigate("TabsStack", { screen: "Home" });
+      }
+      else { }
+    }
+  };
 
   const gotoCartScreen = () => {
     if (cart.length === 0) {
@@ -95,25 +109,16 @@ const CartScreen = ({ navigation, route }: TabsStackScreenProps<"Cart">) => {
                 <Text style={styles.itemName}>{item.name}</Text>
                 <Text style={styles.itemPrice}>${item.price}</Text>
                 <View style={styles.quantityContainer}>
-                  <TouchableOpacity
-                    style={styles.quantityButton}
-                    onPress={() => handleDecreaseQuantity(item)}
-                  >
+                  <TouchableOpacity style={styles.quantityButton} onPress={() => handleDecreaseQuantity(item)}>
                     <Text style={styles.quantityButtonText}>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.quantityValue}>{item.quantity || 1}</Text>
-                  <TouchableOpacity
-                    style={styles.quantityButton}
-                    onPress={() => handleIncreaseQuantity(item)}
-                  >
+                  <Text style={styles.quantityValue}>{item.quantity}</Text>
+                  <TouchableOpacity style={styles.quantityButton} onPress={() => handleIncreaseQuantity(item)}>
                     <Text style={styles.quantityButtonText}>+</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => handleDeleteItem(item._id)}
-              >
+              <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteItem(item._id)}>
                 <AntDesign name="delete" size={24} color="#FF6B6B" />
               </TouchableOpacity>
             </View>
@@ -126,9 +131,12 @@ const CartScreen = ({ navigation, route }: TabsStackScreenProps<"Cart">) => {
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.checkoutButton}>
+          <Pressable
+            style={styles.checkoutButton}
+            onPress={proceed}
+          >
             <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
-          </TouchableOpacity>
+          </Pressable>
         </ScrollView>
       )}
     </SafeAreaView>
