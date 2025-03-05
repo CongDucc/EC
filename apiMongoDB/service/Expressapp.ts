@@ -13,7 +13,7 @@ export default async (app: Application) => {
     app.use('/category', CategoryRoute);
     app.use('/product', ProductRoute);
     app.use('/assets', express.static(path.join(__dirname, '../assets')));
-    app.use('/user ', UserRoute);
+    app.use('/user', UserRoute); // Remove the extra space here
 
     return app;
 };

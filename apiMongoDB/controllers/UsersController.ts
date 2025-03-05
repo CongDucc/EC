@@ -62,17 +62,28 @@ export const userLogin = async (
         const { email, password } = req.body;
         console.log("req.body:", email, password);
         const user = await USERLOG.findOne({ email });
+
         if (!user) {
-            res.status(401).json({ message: "Email a valid username" });
+            res.status(401).json({ message: "Email không tồn tại" });
             return;
         }
+
         if (user.password !== password) {
-            res.status(403).json({ message: "Enter a valid password" });
+            res.status(403).json({ message: "Mật khẩu không chính xác" });
+            return;
         }
+
         const token = user._id;
+        const userId = user._id;
+
         console.log("user token", token);
-        res.status(200).json({ token });
+        res.status(200).json({
+            token,
+            userId,
+            message: "Đăng nhập thành công"
+        });
     } catch (err) {
-        res.status(500).json({ message: { err } });
+        console.error("Login error:", err);
+        res.status(500).json({ message: "Lỗi server khi đăng nhập" });
     }
 };
